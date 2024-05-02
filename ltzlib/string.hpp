@@ -7,6 +7,7 @@
 
 namespace ltz {
 
+namespace str {
 /*
     @brief trim leading whitespace
     @param s string to trim
@@ -23,22 +24,23 @@ inline std::string& ltrim(std::string& s) {
     @param s string to trim
     @return trimmed string
  */
-std::string& rtrim(std::string& s) {
+inline std::string& rtrim(std::string& s) {
     auto it = std::find_if(s.rbegin(), s.rend(), [](char ch) { return !std::isspace(ch); });
     s.erase(it.base(), s.end());
     return s;
 }
 
-/* 
+/*
     @brief trim both side whitespace
     @param s string to trim
     @return trimmed string
  */
-std::string& trim(std::string& s) {
+inline std::string& trim(std::string& s) {
     return ltrim(rtrim(s));
 }
 
 
+}  // namespace str
 }  // namespace ltz
 
 
