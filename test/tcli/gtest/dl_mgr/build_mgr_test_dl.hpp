@@ -1,6 +1,6 @@
 #pragma once
 #include "common.hpp"
-#include "ltzlib/dl_mgr.hpp"
+#include "ltz/dl_mgr.hpp"
 
 #define LTZ_DL_MGR_NAME test_dl
 #define LTZ_DL_MGR_SEQ ((int (*)(int, int), add))((void (*)(const char*), print))((size_t(*)(const char*), strlen))

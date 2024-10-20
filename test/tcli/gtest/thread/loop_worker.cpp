@@ -1,5 +1,5 @@
 #include "common.hpp"
-#include "ltzlib/thread/loop_worker.hpp"
+#include "ltz/thread/loop_worker.hpp"
 
 #define GF(...) GF_THREAD(loop_worker, __VA_ARGS__)
 
