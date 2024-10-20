@@ -1,0 +1,3 @@
+[submodule "third_party/ltztest"]
+	path = third_party/ltztest
+	url = https://github.com/Latzl/ltztest.git
