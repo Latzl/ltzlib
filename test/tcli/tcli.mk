@@ -1,7 +1,7 @@
 TCLI_MKDIR = $(shell dirname $(abspath $(lastword $(MAKEFILE_LIST))))
 CXX = g++
 FLAGS = -g -O0 -std=c++14 -Wall
-BUILD_DIR = ./build
+BUILD_DIR = $(THIS_MKDIR)/build
 OBJ_DIR = $(BUILD_DIR)/obj
 TARGET_DIR = $(BUILD_DIR)/bin
 TARGET = $(TARGET_DIR)/tcli
@@ -35,6 +35,7 @@ $(TARGET): $(OBJS)
 	$(CXX) $(INCS) $(FLAGS) -o $@ $^ $(LIBS)
 
 .PHONY: all clean test
+.DEFAULT_GOAL: all
 
 all : $(TARGET)
 
