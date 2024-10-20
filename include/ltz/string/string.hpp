@@ -140,7 +140,7 @@ template <typename It, typename UnaryTran>
 inline std::string join(It first, It last, const std::string &delimiter, UnaryTran trans) {
     std::string s;
     for (It it = first; it != last; it = std::next(it)) {
-        s += trans(it) + delimiter;
+        s += trans(*it) + delimiter;
     }
     if (first != last && !s.empty()) {
         s.erase(s.size() - delimiter.size());
