@@ -1,15 +1,22 @@
-THIS_MKDIR = $(shell dirname $(abspath $(lastword $(MAKEFILE_LIST))))
+THIS_MKDIR := $(shell dirname $(abspath $(lastword $(MAKEFILE_LIST))))
 OBJS += $(call GET_OBJS,./gtest/thread/,gtest/thread)
 OBJS += $(call GET_OBJS,./gtest/dl_mgr/,gtest/dl_mgr)
+OBJS += $(call GET_OBJS,./gtest/string/,gtest/string)
 
+# OBJS += $(call GET_OBJS,./xxx/,xxx)
 
-include ./tcli.mk
-INCS += -I$(TCLI_MKDIR)/../../include
+include ../../third_party/ltztest/tcli.mk
+INCS += -I$(THIS_MKDIR)/../../include
 
 # # xxx
 # $(OBJ_DIR)/xxx/%.o: ./xxx/%.cpp $(HEADERS)
 # 	@mkdir -p $(OBJ_DIR)/xxx
 # 	$(CXX) $(INCS) $(FLAGS) -c $< -o $@
+
+# gtest/string
+$(OBJ_DIR)/gtest/string/%.o: ./gtest/string/%.cpp $(HEADERS)
+	@mkdir -p $(OBJ_DIR)/gtest/string
+	$(CXX) $(INCS) $(FLAGS) -c $< -o $@
 
 DL_TEST_TARGET = $(TARGET_DIR)/test_dl.so
 # gtest/dl_mgr
