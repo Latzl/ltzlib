@@ -1,6 +1,7 @@
 #ifndef LTZ_STRING_HPP
 #define LTZ_STRING_HPP
 
+#include <functional>
 #include <string>
 #include <vector>
 #include <sstream>
@@ -95,7 +96,7 @@ inline std::string &replace(std::string &src, const std::string &oldSubstr, cons
     return src = replace(const_cast<const std::string &>(src), oldSubstr, newSubstr);
 }
 
-inline std::vector<std::string> split(const std::string &src, const std::string &delimiter) {
+inline std::vector<std::string> split_if(const std::string &src, const std::string &delimiter, std::function<bool(const std::string &)> pred) {
     if (src.empty()) {
         return {};
     }
@@ -110,11 +111,26 @@ inline std::vector<std::string> split(const std::string &src, const std::string 
         last = next + delimiter.size();
     }
     if (last < src.size()) {
-        vRet.push_back(src.substr(last));
+        std::string to_push = src.substr(last);
+        if (pred(to_push)) {
+            vRet.push_back(to_push);
+        }
     } else if (last == src.size()) {
-        vRet.push_back("");
+        std::string to_push = "";
+        if (pred(to_push)) {
+            vRet.push_back(to_push);
+        }
     }
     return vRet;
+}
+
+inline std::vector<std::string> split(const std::string &src, const std::string &delimiter) {
+    return split_if(src, delimiter, [](const std::string &) { return true; });
+}
+
+template <typename InputIt>
+inline std::string join(InputIt first, InputIt last, const std::string &delimiter) {
+    return join(first, last, delimiter, [](const typename std::iterator_traits<InputIt>::value_type &t) { return t; });
 }
 
 /*
