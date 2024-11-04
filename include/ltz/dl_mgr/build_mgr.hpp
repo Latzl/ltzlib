@@ -12,7 +12,7 @@
   @throw std::runtime_error if the dynamic library can not be loaded.
   @example 
     #define LTZ_DL_MGR_NAME example_mgr
-    #define LTZ_DL_MGR_SEQ (void (*)(), foo)(int (*)(int,int), bar)
+    #define LTZ_DL_MGR_SEQ ((void (*)(), foo))((int (*)(int,int), bar))
     #define LTZ_DL_MGR_NAMESPACE_SEQ (ns_a)(ns_b)(ns_c)
     #include LTZ_DL_MGR_BUILD_MGR()
     int main(){
