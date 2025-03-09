@@ -2,6 +2,9 @@ THIS_MKDIR := $(shell dirname $(abspath $(lastword $(MAKEFILE_LIST))))
 OBJS += $(call GET_OBJS,./gtest/thread/,gtest/thread)
 OBJS += $(call GET_OBJS,./gtest/dl_mgr/,gtest/dl_mgr)
 OBJS += $(call GET_OBJS,./gtest/string/,gtest/string)
+OBJS += $(call GET_OBJS,./gtest/task/,gtest/task)
+OBJS += $(call GET_OBJS,./gtest/scheduler/,gtest/scheduler)
+OBJS += $(call GET_OBJS,./scheduler/,scheduler)
 
 # OBJS += $(call GET_OBJS,./xxx/,xxx)
 
@@ -9,9 +12,22 @@ include ../../third_party/ltztest/tcli.mk
 INCS += -I$(THIS_MKDIR)/../../include
 
 # # xxx
+# HEADERS += $(THIS_MKDIR)/../../include/ltz/hhh/*
 # $(OBJ_DIR)/xxx/%.o: ./xxx/%.cpp $(HEADERS)
 # 	@mkdir -p $(OBJ_DIR)/xxx
 # 	$(CXX) $(INCS) $(FLAGS) -c $< -o $@
+
+# scheduler
+HEADERS += $(THIS_MKDIR)/../../include/ltz/scheduler/*
+$(OBJ_DIR)/scheduler/%.o: ./scheduler/%.cpp $(HEADERS)
+	@mkdir -p $(OBJ_DIR)/scheduler
+	$(CXX) $(INCS) $(FLAGS) -c $< -o $@
+
+# gtest/scheduler
+HEADERS += $(THIS_MKDIR)/../../include/ltz/scheduler/*
+$(OBJ_DIR)/gtest/scheduler/%.o: ./gtest/scheduler/%.cpp $(HEADERS)
+	@mkdir -p $(OBJ_DIR)/gtest/scheduler
+	$(CXX) $(INCS) $(FLAGS) -c $< -o $@
 
 # gtest/string
 $(OBJ_DIR)/gtest/string/%.o: ./gtest/string/%.cpp $(HEADERS)
