@@ -3,17 +3,21 @@
 
 namespace ltz {
 
-struct scope_cleaner {
-    std::function<void()> fnClean;
-    scope_cleaner(std::function<void()> fn = nullptr) : fnClean(fn) {}
-    ~scope_cleaner() {
-        if (fnClean) {
-            fnClean();
+namespace scope {
+struct cleaner {
+    cleaner(std::function<void()> fn = nullptr) : clean_fn_(fn) {}
+    ~cleaner() {
+        if (clean_fn_) {
+            clean_fn_();
         }
     }
 
     void cancel() {
-        fnClean = nullptr;
+        clean_fn_ = nullptr;
     }
+
+   private:
+    std::function<void()> clean_fn_;
 };
+}  // namespace scope
 }  // namespace ltz
