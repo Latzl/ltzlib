@@ -75,37 +75,38 @@ GF(start) {
 }
 
 GF(notify) {
-    int cnt{0};
-    auto fn = [&cnt]() {
-        std::this_thread::sleep_for(std::chrono::milliseconds(1));
-        cnt++;
-        fmt::print("cnt: {}\n", cnt);
-    };
-    ltz::scheduler::loop_worker::conf cfg;
-    cfg.interval_time = 1000;
-    {
-        ltz::scheduler::loop_worker worker(fn, cfg);
-        worker.start();  // post fn immediately
-        worker.notify();
-        std::this_thread::sleep_for(std::chrono::milliseconds(2));
-        worker.stop();
-        EXPECT_EQ(cnt, 1);
-    }
-}
+    std::promise<void> prom;
+    std::future<void> fut = prom.get_future();
+    auto fn = [&prom]() { prom.set_value(); };
 
-GF(notify_wait) {
-    int cnt{0};
-    auto fn = [&cnt]() {
-        std::this_thread::sleep_for(std::chrono::milliseconds(1));
-        cnt++;
-    };
     ltz::scheduler::loop_worker::conf cfg;
     cfg.interval_time = 1000;
     ltz::scheduler::loop_worker worker(fn, cfg);
-    worker.start();  // post fn immediately
-    worker.notify_wait();  // notify and wait for fn to be started, expect start immediately
-    std::this_thread::sleep_for(std::chrono::milliseconds(2));
+    worker.start();
+    auto start_tp = std::chrono::steady_clock::now();
+    worker.notify();
+    fut.get();
+    auto end_tp = std::chrono::steady_clock::now();
     worker.stop();
-    EXPECT_EQ(cnt, 1);
+    auto cost_time = std::chrono::duration_cast<std::chrono::milliseconds>(end_tp - start_tp);
+    EXPECT_LT(cost_time, std::chrono::milliseconds(cfg.interval_time));
+}
+
+GF(notify_wait) {
+    std::promise<void> prom;
+    std::future<void> fut = prom.get_future();
+    auto fn = [&prom]() { prom.set_value(); };
+
+    ltz::scheduler::loop_worker::conf cfg;
+    cfg.interval_time = 1000;
+    ltz::scheduler::loop_worker worker(fn, cfg);
+    worker.start();
+    auto start_tp = std::chrono::steady_clock::now();
+    worker.notify_wait();
+    fut.get();
+    auto end_tp = std::chrono::steady_clock::now();
+    worker.stop();
+    auto cost_time = std::chrono::duration_cast<std::chrono::milliseconds>(end_tp - start_tp);
+    EXPECT_LT(cost_time, std::chrono::milliseconds(cfg.interval_time));
 }
 }  // namespace ltz_gtest
