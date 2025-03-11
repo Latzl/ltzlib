@@ -8,12 +8,12 @@ struct scope_cleaner {
     scope_cleaner(std::function<void()> fn = nullptr) : fnClean(fn) {}
     ~scope_cleaner() {
         if (fnClean) {
-            try {
-                fnClean();
-            } catch (...) {
-                // donothing
-            }
+            fnClean();
         }
+    }
+
+    void cancel() {
+        fnClean = nullptr;
     }
 };
 }  // namespace ltz
