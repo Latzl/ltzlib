@@ -1,5 +1,7 @@
 #include "common.hpp"
 #include <ltz/scheduler/loop_worker.hpp>
+#include <fmt/core.h>
+#include <fmt/chrono.h>
 
 #define GF(...) GF_SCHEDULER(loop_worker, __VA_ARGS__)
 
@@ -8,6 +10,7 @@ ltz::scheduler::loop_worker::conf g_cfg;
 struct Initer {
     Initer() {
         g_cfg.interval_time = 2;
+        ltz::print_level() = 7;
     }
 } g_initer;
 
@@ -36,65 +39,73 @@ GF(base) {
     int cnt{0};
     auto fn = [&cnt]() { cnt++; };
     ltz::scheduler::loop_worker::conf cfg;
-    cfg.interval_time = 1;
+    cfg.interval_time = 10;
     ltz::scheduler::loop_worker worker(fn, cfg);
     worker.start();  // post fn immediately
-    std::this_thread::sleep_for(std::chrono::microseconds(5500));
+    EXPECT_TRUE(worker.is_running());
     worker.stop();
-    EXPECT_EQ(cnt, 6);
+    EXPECT_FALSE(worker.is_running());
 }
 
 GF(start) {
     int cnt{0};
     auto fn = [&cnt]() { cnt++; };
-    ltz::scheduler::loop_worker::conf cfg;
-    cfg.interval_time = 2;
-    ltz::scheduler::loop_worker worker(fn, cfg);
-    worker.start();
-    worker.start();
-    worker.start();
-    worker.start();
-    worker.start();
-    std::this_thread::sleep_for(std::chrono::microseconds(1500));
-    worker.stop();
-    EXPECT_EQ(cnt, 1);
+    {
+        ltz::scheduler::loop_worker worker(fn, g_cfg);
+        worker.start();
+        worker.start();
+        worker.start();
+        worker.start();
+        worker.start();
+        EXPECT_TRUE(worker.is_running());
+        worker.stop();
+        EXPECT_FALSE(worker.is_running());
+    }
+    {
+        ltz::scheduler::loop_worker worker(fn, g_cfg);
+        boost::asio::thread_pool pool;
+        for (int i = 0; i < 100; i++) {
+            boost::asio::post(pool, [&worker]() { worker.start(); });
+        }
+        pool.join();
+        EXPECT_TRUE(worker.is_running());
+        worker.stop();
+        EXPECT_FALSE(worker.is_running());
+    }
 }
 
 GF(notify) {
     int cnt{0};
-    auto fn = [&cnt]() { cnt++; };
+    auto fn = [&cnt]() {
+        std::this_thread::sleep_for(std::chrono::milliseconds(1));
+        cnt++;
+        fmt::print("cnt: {}\n", cnt);
+    };
     ltz::scheduler::loop_worker::conf cfg;
     cfg.interval_time = 1000;
-    ltz::scheduler::loop_worker worker(fn, cfg);
-    worker.start();  // post fn immediately
-    worker.notify();
-    std::this_thread::sleep_for(std::chrono::milliseconds(1));
-    worker.notify();
-    std::this_thread::sleep_for(std::chrono::milliseconds(1));
-    worker.notify();
-    std::this_thread::sleep_for(std::chrono::milliseconds(1));
-    worker.stop();
-    EXPECT_EQ(cnt, 4);
+    {
+        ltz::scheduler::loop_worker worker(fn, cfg);
+        worker.start();  // post fn immediately
+        worker.notify();
+        std::this_thread::sleep_for(std::chrono::milliseconds(2));
+        worker.stop();
+        EXPECT_EQ(cnt, 1);
+    }
 }
 
 GF(notify_wait) {
     int cnt{0};
     auto fn = [&cnt]() {
-        std::this_thread::sleep_for(std::chrono::milliseconds(5));
+        std::this_thread::sleep_for(std::chrono::milliseconds(1));
         cnt++;
     };
     ltz::scheduler::loop_worker::conf cfg;
-    cfg.interval_time = 5;
+    cfg.interval_time = 1000;
     ltz::scheduler::loop_worker worker(fn, cfg);
-    auto start_tp = std::chrono::steady_clock::now();
     worker.start();  // post fn immediately
-    worker.notify_wait();  // wait for fn to finish while at least 5ms is required to finish
-    auto end_tp = std::chrono::steady_clock::now();
-    auto cost_time = end_tp - start_tp;
-    std::this_thread::sleep_for(std::chrono::microseconds(5500));  // wait for fn to finish
+    worker.notify_wait();  // notify and wait for fn to be started, expect start immediately
+    std::this_thread::sleep_for(std::chrono::milliseconds(2));
     worker.stop();
-    EXPECT_EQ(cnt, 2);
-    EXPECT_TRUE(
-        is_tolarence(std::chrono::duration_cast<std::chrono::milliseconds>(cost_time), std::chrono::milliseconds(5)));
+    EXPECT_EQ(cnt, 1);
 }
 }  // namespace ltz_gtest

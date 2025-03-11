@@ -1,5 +1,7 @@
 #include "common.hpp"
 #include <ltz/scheduler/loop_worker.hpp>
+#include <fmt/core.h>
+#include <fmt/chrono.h>
 
 #define FN(...) FN_SCHEDULER(loop_worker, __VA_ARGS__)
 #define DF(desc, ...) DF_SCHEDULER(desc, loop_worker, __VA_ARGS__)

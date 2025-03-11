@@ -10,6 +10,7 @@ OBJS += $(call GET_OBJS,./scheduler/,scheduler)
 
 include ../../third_party/ltztest/tcli.mk
 INCS += -I$(THIS_MKDIR)/../../include
+FLAGS += -DFMT_HEADER_ONLY
 
 # # xxx
 # HEADERS += $(THIS_MKDIR)/../../include/ltz/hhh/*
