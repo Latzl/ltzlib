@@ -40,7 +40,7 @@ class loop_worker {
 
     inline void stop() {
         std::lock_guard<std::mutex> lckThis(mtxThis_);
-        scope_cleaner clr([this] {
+        scope::cleaner clr([this] {
             if (thWork_.joinable()) {
                 thWork_.join();
             }
@@ -136,7 +136,7 @@ class loop_worker {
         bReadyStop_.store(true);
         cvReadyStop_.notify_one();
         bNeedStop_.store(false);
-        scope_cleaner clr([this]() {
+        scope::cleaner clr([this]() {
             bStarted_.store(false);
             bReadyStop_.store(false);
         });

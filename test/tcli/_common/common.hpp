@@ -5,4 +5,6 @@
 #include <tcli/opt.hpp>
 #include <tcli/gtest.hpp>
 
+#include <fmt/core.h>
+
 #endif
