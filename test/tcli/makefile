@@ -5,6 +5,7 @@ OBJS += $(call GET_OBJS,./gtest/string/,gtest/string)
 OBJS += $(call GET_OBJS,./gtest/task/,gtest/task)
 OBJS += $(call GET_OBJS,./gtest/scheduler/,gtest/scheduler)
 OBJS += $(call GET_OBJS,./scheduler/,scheduler)
+OBJS += $(call GET_OBJS,./layers/,layers)
 
 # OBJS += $(call GET_OBJS,./xxx/,xxx)
 
@@ -17,6 +18,12 @@ FLAGS += -DFMT_HEADER_ONLY
 # $(OBJ_DIR)/xxx/%.o: ./xxx/%.cpp $(HEADERS)
 # 	@mkdir -p $(OBJ_DIR)/xxx
 # 	$(CXX) $(INCS) $(FLAGS) -c $< -o $@
+
+# layers
+# HEADERS += $(THIS_MKDIR)/../../include/ltz/hhh/*
+$(OBJ_DIR)/layers/%.o: ./layers/%.cpp $(HEADERS)
+	@mkdir -p $(OBJ_DIR)/layers
+	$(CXX) $(INCS) $(FLAGS) -c $< -o $@
 
 # scheduler
 HEADERS += $(THIS_MKDIR)/../../include/ltz/scheduler/*
