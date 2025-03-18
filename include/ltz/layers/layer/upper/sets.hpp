@@ -1,14 +1,20 @@
 #pragma once
-#include "../detail/upper/set.hpp"
 #include "../detail/basic_sets.hpp"
+#include <set>
+#include <memory>
 
 namespace ltz {
 namespace layers {
 namespace upper {
 
+namespace _detail {
+template <typename T>
+using set = std::set<std::weak_ptr<T>, std::owner_less<std::weak_ptr<T>>>;
+}
+
 template <typename... Types>
-class sets : public _detail::basic_sets<_detail::upper::set, Types...> {
-    using basic_sets = _detail::basic_sets<_detail::upper::set, Types...>;
+class sets : public layers::_detail::basic_sets<_detail::set, Types...> {
+    using basic_sets = layers::_detail::basic_sets<_detail::set, Types...>;
 
    public:
     template <typename T>

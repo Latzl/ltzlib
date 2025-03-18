@@ -1,5 +1,5 @@
 #include "common.hpp"
-#include <ltz/layers/layer.hpp>
+#include <ltz/layers/layers.hpp>
 
 #define GF(...) GF_LAYERS(__VA_ARGS__)
 
@@ -7,6 +7,7 @@ using namespace ltz::layers;
 GF(normal) {
     using upper_sets = upper::sets<int, std::string>;
     using lower_sets = lower::sets<char, double>;
+
     static_assert(upper_sets::contain<int>::value, "");
     static_assert(upper_sets::contain<std::string>::value, "");
     static_assert(!upper_sets::contain<double>::value, "");

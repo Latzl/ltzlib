@@ -1,16 +1,19 @@
 #pragma once
 #include <memory>
-#include <set>
 
 namespace ltz {
 namespace layers {
-namespace _detail {
+namespace chain {
 namespace lower {
-
 template <typename T>
-using set = std::set<std::shared_ptr<T>, std::owner_less<std::shared_ptr<T>>>;
+class node {
+   private:
+    using type = T;
 
+   public:
+    std::shared_ptr<type> upper;
+};
 }  // namespace lower
-}  // namespace _detail
+}  // namespace chain
 }  // namespace layers
 }  // namespace ltz
