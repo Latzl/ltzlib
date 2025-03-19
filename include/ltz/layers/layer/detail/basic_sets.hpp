@@ -1,6 +1,7 @@
 #pragma once
 #include <boost/fusion/include/map.hpp>
 #include <boost/fusion/include/at_key.hpp>
+#include <boost/mp11.hpp>
 
 namespace ltz {
 namespace layers {
@@ -13,17 +14,9 @@ struct basic_sets {
    protected:
     sets sets_;
 
-   private:
-    template <typename T, typename... Us>
-    struct is_in_list : std::false_type {};
-
-    template <typename T, typename First, typename... Rest>
-    struct is_in_list<T, First, Rest...>
-        : std::integral_constant<bool, std::is_same<T, First>::value || is_in_list<T, Rest...>::value> {};
-
    public:
     template <typename T>
-    struct contain : is_in_list<T, Types...> {};
+    struct contain : boost::mp11::mp_contains<boost::mp11::mp_list<Types...>, T> {};
 
    public:
     template <typename T>

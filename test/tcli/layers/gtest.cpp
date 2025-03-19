@@ -4,7 +4,7 @@
 #define GF(...) GF_LAYERS(__VA_ARGS__)
 
 using namespace ltz::layers;
-GF(normal) {
+GF(normal) { 
     using upper_sets = upper::sets<int, std::string>;
     using lower_sets = lower::sets<char, double>;
 

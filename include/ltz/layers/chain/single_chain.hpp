@@ -1,7 +1,6 @@
 #pragma once
-#include "upper_node.hpp"
-#include "lower_node.hpp"
 #include <boost/mp11.hpp>
+#include <memory>
 
 namespace ltz {
 namespace layers {
