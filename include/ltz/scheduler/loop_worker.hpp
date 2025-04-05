@@ -26,8 +26,8 @@ namespace loop_worker {
 
 struct conf_t {
     conf_t() = default;
-    using interval_time_t = std::chrono::milliseconds;
-    std::int64_t interval_time{1000};
+    using interval_time_t = std::chrono::steady_clock::duration;
+    interval_time_t interval_time{std::chrono::seconds{1}};
     bool do_work_at_start{true};
 };
 
@@ -56,7 +56,7 @@ struct state_machine_t {
     explicit state_machine_t(executor& ex) : executor_(ex) {}
     ~state_machine_t() {
         DEBUG("~state_machine_t() enter");
-        work_timer_.cancel();
+        th_pool_.stop();
         th_pool_.join();
         DEBUG("~state_machine_t() exit");
     }

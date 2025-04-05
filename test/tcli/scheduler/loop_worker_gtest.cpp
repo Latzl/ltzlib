@@ -47,7 +47,7 @@ GF_SM(stopped, do_work_at_start) {
 
 GF_SM(stopped, dont_work_at_start) {
     test_sm sm;
-    sm.state_machine_.conf_.interval_time = 100;
+    sm.state_machine_.conf_.interval_time = std::chrono::milliseconds(100);
     sm.state_machine_.conf_.do_work_at_start = false;
     EXPECT_TRUE(sm().is(sml::state<state::stopped>));
 
@@ -139,7 +139,7 @@ GF(is_tolarence) {
 loop_worker::conf_t g_cfg;
 struct Initer {
     Initer() {
-        g_cfg.interval_time = 2;
+        g_cfg.interval_time = std::chrono::milliseconds(2);
     }
 } g_initer;
 
@@ -147,7 +147,7 @@ GF(base, 0) {
     int cnt{0};
     auto fn = [&cnt]() { cnt++; };
     loop_worker::conf_t cfg;
-    cfg.interval_time = 10;
+    cfg.interval_time = std::chrono::seconds{10};
     loop_worker worker{fn, cfg};
     worker.start();  // post fn immediately
     EXPECT_FALSE(worker.is_stopped());
@@ -159,12 +159,45 @@ GF(base, 1) {
     int cnt{0};
     auto fn = [&cnt]() { cnt++; };
     loop_worker::conf_t cfg;
-    cfg.interval_time = 10;
+    cfg.interval_time = std::chrono::milliseconds{10};
     loop_worker worker{fn, cfg};
     worker.start();  // post fn immediately
     std::this_thread::sleep_for(std::chrono::milliseconds(109));
     worker.stop();
     EXPECT_EQ(cnt, 11);
+}
+
+GF(lifetime, 0) {
+    // short interval and work time
+    int cnt{0};
+    {
+        loop_worker::conf_t cfg;
+        cfg.interval_time = std::chrono::microseconds(1);
+        loop_worker worker{[&cnt] { cnt++; }, cfg};
+        worker.start();
+        // will stop at destructor
+    }
+    EXPECT_GT(cnt, 0);
+}
+
+GF(lifetime, 1) {
+    // long work time
+    int cnt{0};
+    {
+        loop_worker::conf_t cfg;
+        cfg.interval_time = std::chrono::milliseconds(1);
+
+        auto fn = [&cnt] {
+            std::this_thread::sleep_for(std::chrono::milliseconds(10));
+            cnt++;
+        };
+        loop_worker worker(fn, cfg);
+        worker.start();
+
+        // ensure working
+        std::this_thread::sleep_for(std::chrono::milliseconds(5));
+    }
+    EXPECT_GT(cnt, 0);
 }
 
 GF(start) {
@@ -207,7 +240,7 @@ GF(notify, 0) {
     auto fn = [prom]() { prom->set_value(); };
 
     loop_worker::conf_t cfg;
-    cfg.interval_time = 1000;
+    cfg.interval_time = std::chrono::seconds{1};
     cfg.do_work_at_start = false;
     loop_worker worker{fn, cfg};
     worker.start();
@@ -217,7 +250,7 @@ GF(notify, 0) {
     auto end_tp = std::chrono::steady_clock::now();
     worker.stop();
     auto cost_time = end_tp - start_tp;
-    EXPECT_LT(cost_time, std::chrono::milliseconds(cfg.interval_time));
+    EXPECT_LT(cost_time, cfg.interval_time);
 }
 
 GF(notify, 1) {
@@ -234,7 +267,7 @@ GF(notify, 1) {
     };
 
     loop_worker::conf_t cfg;
-    cfg.interval_time = 1000;
+    cfg.interval_time = std::chrono::seconds{1};
     loop_worker worker{fn, cfg};
 
     auto tp_start = std::chrono::steady_clock::now();
@@ -255,7 +288,7 @@ GF(notify, 1) {
     EXPECT_EQ(cnt, 5);
 
     auto cost_time = tp_stop - tp_start;
-    EXPECT_LT(cost_time, std::chrono::milliseconds(cfg.interval_time));
+    EXPECT_LT(cost_time, cfg.interval_time);
 }
 
 GF(notify, long_time_work) {
@@ -279,11 +312,14 @@ GF(notify, long_time_work) {
     {
         std::unique_lock<std::mutex> lk(mtx);
         cv.wait(lk, [&ready] { return ready; });
+        ready = false;
     }
     worker.notify();
     {
         std::unique_lock<std::mutex> lk(mtx);
+        ready = false;
         cv.wait(lk, [&ready] { return ready; });
+        ready = false;
     }
     worker.stop();
     auto tp_stop = std::chrono::steady_clock::now();

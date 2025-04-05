@@ -43,7 +43,7 @@ FN(0) {
 
 FN(1) {
     loop_worker::conf_t cfg;
-    cfg.interval_time = 10;
+    cfg.interval_time = std::chrono::milliseconds(10);
     int cnt{0};
     loop_worker worker{
         [&cnt] {
@@ -64,7 +64,7 @@ FN(1) {
 FN(2) {
     int cnt = 0;
     loop_worker::conf_t cfg;
-    cfg.interval_time = 1000;
+    cfg.interval_time = std::chrono::seconds(1);
     auto fn = [&cnt] {
         spdlog::info("done");
         cnt++; 
