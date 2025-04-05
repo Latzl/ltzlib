@@ -46,7 +46,7 @@ struct D : public node<D, upper::sets<C>, lower::sets<void>> {
     int d{4};
 };
 
-struct E : public node<E, upper::sets<C>, lower::sets<void>> {
+struct E : public node<E, upper::sets<C>, lower::sets<>> {
     E(std::weak_ptr<C> wp) : node(wp) {}
     int e{5};
 };

@@ -1,3 +1,6 @@
 [submodule "third_party/ltztest"]
 	path = third_party/ltztest
 	url = https://github.com/Latzl/ltztest.git
+[submodule "third_party/boost/sml"]
+	path = third_party/boost/sml
+	url = https://github.com/boost-ext/sml.git

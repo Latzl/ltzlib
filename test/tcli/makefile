@@ -11,7 +11,9 @@ OBJS += $(call GET_OBJS,./layers/,layers)
 
 include ../../third_party/ltztest/tcli.mk
 INCS += -I$(THIS_MKDIR)/../../include
+INCS += -I$(THIS_MKDIR)/../../third_party/include
 FLAGS += -DFMT_HEADER_ONLY
+FLAGS += -fno-access-control
 
 # # xxx
 # HEADERS += $(THIS_MKDIR)/../../include/ltz/hhh/*
